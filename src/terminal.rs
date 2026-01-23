@@ -20,15 +20,13 @@ const TERMINAL_SCREEN_SIZE: usize = ((DISPLAY_SIZE_HEIGHT - 20) / 10) as usize;
 /// Maximum amout of characters per line considering font size and paddings
 const TERMINAL_MAX_CHARS: usize = ((DISPLAY_SIZE_WIDTH - 20) / 6) as usize;
 
-pub struct Terminal<'a> {
-    display: &'a mut AVDisplay,
+pub struct Terminal {
     panel: Styled<RoundedRectangle, PrimitiveStyle<Rgb565>>,
-
     buffer: Vec<String>,
 }
 
-impl<'a> Terminal<'a> {
-    pub fn new(display: &'a mut AVDisplay) -> Self {
+impl Terminal {
+    pub fn new() -> Self {
         let panel_style = PrimitiveStyleBuilder::new()
             .stroke_width(1)
             .stroke_color(Rgb888::new(132, 110, 63).into())
@@ -48,7 +46,6 @@ impl<'a> Terminal<'a> {
         )
         .into_styled(panel_style);
         Self {
-            display,
             panel,
             buffer: Vec::with_capacity(TERMINAL_MAX_LINES),
         }
@@ -81,16 +78,16 @@ impl<'a> Terminal<'a> {
         }
     }
 
-    pub fn draw(&mut self) {
-        self.draw_panel();
-        self.draw_text();
+    pub fn draw(&mut self, display: &mut AVDisplay) {
+        self.draw_panel(display);
+        self.draw_text(display);
     }
 
-    fn draw_panel(&mut self) {
-        self.panel.draw(self.display).unwrap();
+    fn draw_panel(&mut self, display: &mut AVDisplay) {
+        self.panel.draw(display).unwrap();
     }
 
-    fn draw_text(&mut self) {
+    fn draw_text(&mut self, display: &mut AVDisplay) {
         // create String to draw
         let buf_len = self.buffer.len();
         let text_str = if buf_len > TERMINAL_SCREEN_SIZE {
@@ -105,6 +102,6 @@ impl<'a> Terminal<'a> {
             Point::new(10, 16),
             MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE),
         );
-        text.draw(self.display).unwrap();
+        text.draw(display).unwrap();
     }
 }

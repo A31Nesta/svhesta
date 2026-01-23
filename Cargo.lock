@@ -313,6 +313,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "heapless 0.8.0",
+ "log",
 ]
 
 [[package]]
@@ -1360,6 +1361,7 @@ version = "0.0.1"
 dependencies = [
  "critical-section",
  "embassy-executor",
+ "embassy-sync 0.7.2",
  "embassy-time",
  "embedded-graphics",
  "embedded-hal-bus",
