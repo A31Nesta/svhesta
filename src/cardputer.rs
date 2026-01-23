@@ -1,17 +1,18 @@
 use esp_hal::{
-    gpio::{Level, Output, OutputConfig},
+    gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull},
     peripherals::Peripherals,
 };
 
 mod display;
 
 use crate::cardputer::display::{DisplayPeripherals, get_display};
-pub use display::{AVDisplay, DISPLAY_SIZE_HEIGHT, DISPLAY_SIZE_WIDTH};
+pub use display::{DISPLAY_SIZE_HEIGHT, DISPLAY_SIZE_WIDTH, SVDisplay};
 
 /// The Cardputer's features in one package, similar to M5Unified
 pub struct Cardputer {
-    pub display: AVDisplay,
+    pub display: SVDisplay,
     pub backlight: Output<'static>,
+    pub g0: Input<'static>,
 }
 
 impl Cardputer {
@@ -30,7 +31,17 @@ impl Cardputer {
         // Initialize Backlight
         let backlight = Output::new(peripherals.GPIO38, Level::Low, OutputConfig::default());
 
+        // Initialize G0 Button
+        let g0 = Input::new(
+            peripherals.GPIO0,
+            InputConfig::default().with_pull(Pull::Up),
+        );
+
         // Build and return
-        return Cardputer { display, backlight };
+        return Cardputer {
+            display,
+            backlight,
+            g0,
+        };
     }
 }

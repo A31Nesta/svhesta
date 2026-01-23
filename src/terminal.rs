@@ -13,7 +13,7 @@ use embedded_graphics::{
     text::Text,
 };
 
-use crate::cardputer::{AVDisplay, DISPLAY_SIZE_HEIGHT, DISPLAY_SIZE_WIDTH};
+use crate::cardputer::{DISPLAY_SIZE_HEIGHT, DISPLAY_SIZE_WIDTH, SVDisplay};
 
 const TERMINAL_MAX_LINES: usize = 20;
 const TERMINAL_SCREEN_SIZE: usize = ((DISPLAY_SIZE_HEIGHT - 20) / 10) as usize;
@@ -78,16 +78,16 @@ impl Terminal {
         }
     }
 
-    pub fn draw(&mut self, display: &mut AVDisplay) {
+    pub fn draw(&mut self, display: &mut SVDisplay) {
         self.draw_panel(display);
         self.draw_text(display);
     }
 
-    fn draw_panel(&mut self, display: &mut AVDisplay) {
+    fn draw_panel(&mut self, display: &mut SVDisplay) {
         self.panel.draw(display).unwrap();
     }
 
-    fn draw_text(&mut self, display: &mut AVDisplay) {
+    fn draw_text(&mut self, display: &mut SVDisplay) {
         // create String to draw
         let buf_len = self.buffer.len();
         let text_str = if buf_len > TERMINAL_SCREEN_SIZE {

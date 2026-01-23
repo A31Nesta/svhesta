@@ -28,7 +28,7 @@ const DISPLAY_BUFFER_SIZE: usize = 100;
 /// Display Buffer
 static DISPLAY_BUFFER: StaticCell<[u8; DISPLAY_BUFFER_SIZE]> = StaticCell::new();
 
-pub type AVDisplay = Display<
+pub type SVDisplay = Display<
     SpiInterface<
         'static,
         ExclusiveDevice<Spi<'static, Blocking>, Output<'static>, NoDelay>,
@@ -48,7 +48,7 @@ pub struct DisplayPeripherals {
 }
 
 /// Obtain the Cardputer Display from the Peripherals
-pub fn get_display(peripherals: DisplayPeripherals) -> AVDisplay {
+pub fn get_display(peripherals: DisplayPeripherals) -> SVDisplay {
     // To set up a TFT display we use:
     // - DATA: MOSI, output data
     // - SCK: Serial Clock

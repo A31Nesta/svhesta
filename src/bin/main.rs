@@ -7,18 +7,17 @@
 )]
 #![deny(clippy::large_stack_frames)]
 
+use defmt::info;
 use embassy_executor::Spawner;
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-use embassy_sync::mutex::Mutex;
 use embedded_graphics::draw_target::DrawTarget;
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::RgbColor;
-use esp_backtrace as _;
 use esp_hal::clock::CpuClock;
 use esp_hal::timer::timg::TimerGroup;
-use log::info;
 use svhesta::cardputer::Cardputer;
+use svhesta::event::TERMINAL;
 use svhesta::terminal::Terminal;
+use {esp_backtrace as _, esp_println as _};
 
 extern crate alloc;
 
@@ -26,17 +25,12 @@ extern crate alloc;
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
 
-static CARDPUTER: Mutex<CriticalSectionRawMutex, Option<Cardputer>> = Mutex::new(None);
-static TERMINAL: Mutex<CriticalSectionRawMutex, Option<Terminal>> = Mutex::new(None);
-
 #[allow(
     clippy::large_stack_frames,
     reason = "it's not unusual to allocate larger buffers etc. in main"
 )]
 #[esp_rtos::main]
 async fn main(spawner: Spawner) -> ! {
-    esp_println::logger::init_logger_from_env();
-
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
 
@@ -50,31 +44,36 @@ async fn main(spawner: Spawner) -> ! {
 
     info!("Embassy initialized!");
 
-    // Init Cardputer and Terminal
+    // Init cardputer
+    let mut cardputer = Cardputer::new(peripherals);
+    info!("Cardputer initialized!");
+
+    cardputer.display.clear(Rgb565::BLACK).unwrap();
+    cardputer.backlight.set_high();
+
+    // Init Terminal
     {
-        *(CARDPUTER.lock().await) = Some(Cardputer::new(peripherals));
         *(TERMINAL.lock().await) = Some(Terminal::new());
-
-        info!("Cardputer initialized!");
-
-        let mut lock = CARDPUTER.lock().await;
-        let cardputer = lock.as_mut().unwrap();
-        cardputer.display.clear(Rgb565::BLACK).unwrap();
-        cardputer.backlight.set_high();
 
         let mut lock = TERMINAL.lock().await;
         let terminal = lock.as_mut().unwrap();
 
         terminal.push("Embassy and Cardputer initialized.");
         terminal.push("Svhesta up and running!");
-        terminal.draw(&mut cardputer.display);
+        // terminal.draw(&mut cardputer.display);
     }
 
     // TODO: Spawn tasks for Keyboard, Battery...
-    let _ = spawner;
+    spawner.spawn(svhesta::tasks::input_g0(cardputer.g0)).ok();
+    spawner
+        .spawn(svhesta::tasks::output_display(cardputer.display))
+        .ok();
 
-    loop {
-        // info!("Hello world!");
-        // Timer::after(Duration::from_secs(1)).await;
-    }
+    // Yield (run other tasks)
+    core::future::pending::<()>().await;
+    loop {}
+    // loop {
+    //     // info!("Hello world!");
+    //     Timer::after(Duration::from_secs(1)).await;
+    // }
 }
