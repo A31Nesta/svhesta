@@ -1,4 +1,4 @@
-use defmt::info;
+use alloc::format;
 use esp_backtrace as _;
 use esp_hal::gpio::Input;
 
@@ -9,21 +9,19 @@ use crate::{
 
 #[embassy_executor::task]
 pub async fn input_g0(mut g0: Input<'static>) {
-    info!("Input task running");
+    log("Input task running").await;
     loop {
         g0.wait_for_falling_edge().await;
         event_send(SVEvent::KeyDown(SVKey::G0)).await;
-        log("Pressed G0!").await;
 
         g0.wait_for_rising_edge().await;
         event_send(SVEvent::KeyUp(SVKey::G0)).await;
-        log("Released G0!").await;
     }
 }
 
 #[embassy_executor::task]
 pub async fn output_display(mut display: SVDisplay) {
-    info!("Display task running");
+    log("Display task running").await;
     // Draw once
     {
         let mut lock = TERMINAL.lock().await;
@@ -38,7 +36,12 @@ pub async fn output_display(mut display: SVDisplay) {
                 let terminal = lock.as_mut().unwrap();
                 terminal.draw(&mut display);
             }
-            _ => (),
+            SVEvent::KeyDown(key) => {
+                log(&format!("Pressed key: {:?}", key)).await;
+            }
+            SVEvent::KeyUp(key) => {
+                log(&format!("Released key: {:?}", key)).await;
+            }
         }
     }
 }

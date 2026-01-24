@@ -38,8 +38,8 @@ impl Terminal {
             Rectangle::new(
                 Point::new_equal(padding as i32),
                 Size {
-                    width: (DISPLAY_SIZE_WIDTH as u32) - 2 * padding,
-                    height: (DISPLAY_SIZE_HEIGHT as u32) - 2 * padding,
+                    width: ((DISPLAY_SIZE_WIDTH as u32) - 2 * padding) + 1,
+                    height: ((DISPLAY_SIZE_HEIGHT as u32) - 2 * padding) + 1,
                 },
             ),
             CornerRadii::new(Size::new_equal(8)),

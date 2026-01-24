@@ -58,12 +58,18 @@ async fn main(spawner: Spawner) -> ! {
         let mut lock = TERMINAL.lock().await;
         let terminal = lock.as_mut().unwrap();
 
-        terminal.push("Embassy and Cardputer initialized.");
-        terminal.push("Svhesta up and running!");
-        // terminal.draw(&mut cardputer.display);
+        terminal.push(
+            r#".----------------------------------.
+|              _  _                |
+|              \\//                |
+|             ==  ==               |
+|              //\\                |
+|         SVHESTA FIRMWARE         |
+|                                  |
+"----------------------------------""#,
+        );
     }
 
-    // TODO: Spawn tasks for Keyboard, Battery...
     spawner.spawn(svhesta::tasks::input_g0(cardputer.g0)).ok();
     spawner
         .spawn(svhesta::tasks::output_display(cardputer.display))
@@ -72,8 +78,4 @@ async fn main(spawner: Spawner) -> ! {
     // Yield (run other tasks)
     core::future::pending::<()>().await;
     loop {}
-    // loop {
-    //     // info!("Hello world!");
-    //     Timer::after(Duration::from_secs(1)).await;
-    // }
 }

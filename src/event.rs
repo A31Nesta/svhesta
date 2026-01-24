@@ -1,3 +1,6 @@
+#[cfg(debug_assertions)]
+use defmt::info;
+
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, mutex::Mutex};
 
 use crate::{event::keys::SVKey, terminal::Terminal};
@@ -23,6 +26,9 @@ pub async fn log(message: &str) {
         let terminal = lock.as_mut().unwrap();
         terminal.push(message);
     }
+    #[cfg(debug_assertions)]
+    info!("{}", message);
+
     event_send(SVEvent::RedrawTerminal).await;
 }
 
