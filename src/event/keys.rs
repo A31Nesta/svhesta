@@ -1,9 +1,5 @@
 #[derive(Debug, Clone, Copy)]
 pub enum SVKey {
-    // Other buttons
-    G0,
-
-    // Keyboard Keys
     Backquote,
     One,
     Two,
@@ -60,4 +56,79 @@ pub enum SVKey {
     Period,
     Slash,
     Space,
+}
+
+impl SVKey {
+    pub fn char(&self, shifted: bool) -> Option<char> {
+        let ch = match self {
+            SVKey::Backquote => Some(('`', '~')),
+            SVKey::One => Some(('1', '!')),
+            SVKey::Two => Some(('2', '@')),
+            SVKey::Three => Some(('3', '#')),
+            SVKey::Four => Some(('4', '$')),
+            SVKey::Five => Some(('5', '%')),
+            SVKey::Six => Some(('6', '^')),
+            SVKey::Seven => Some(('7', '&')),
+            SVKey::Eight => Some(('8', '*')),
+            SVKey::Nine => Some(('9', '(')),
+            SVKey::Zero => Some(('0', ')')),
+            SVKey::Minus => Some(('-', '_')),
+            SVKey::Equal => Some(('=', '+')),
+
+            SVKey::Backspace => None,
+            SVKey::Tab => Some(('\t', '\t')),
+
+            SVKey::Q => Some(('q', 'Q')),
+            SVKey::W => Some(('w', 'W')),
+            SVKey::E => Some(('e', 'E')),
+            SVKey::R => Some(('r', 'R')),
+            SVKey::T => Some(('t', 'T')),
+            SVKey::Y => Some(('y', 'Y')),
+            SVKey::U => Some(('u', 'U')),
+            SVKey::I => Some(('i', 'I')),
+            SVKey::O => Some(('o', 'O')),
+            SVKey::P => Some(('p', 'P')),
+
+            SVKey::OpenBracket => Some(('[', '{')),
+            SVKey::CloseBracket => Some((']', '}')),
+            SVKey::Backslash => Some(('\\', '|')),
+
+            SVKey::Fn => None,
+            SVKey::Shift => None,
+
+            SVKey::A => Some(('a', 'A')),
+            SVKey::S => Some(('s', 'S')),
+            SVKey::D => Some(('d', 'D')),
+            SVKey::F => Some(('f', 'F')),
+            SVKey::G => Some(('g', 'G')),
+            SVKey::H => Some(('h', 'H')),
+            SVKey::J => Some(('j', 'J')),
+            SVKey::K => Some(('k', 'K')),
+            SVKey::L => Some(('l', 'L')),
+
+            SVKey::SemiColon => Some((';', ':')),
+            SVKey::Quote => Some(('\'', '"')),
+            SVKey::Enter => Some(('\n', '\n')),
+
+            SVKey::Ctrl => None,
+            SVKey::Opt => None,
+            SVKey::Alt => None,
+
+            SVKey::Z => Some(('z', 'Z')),
+            SVKey::X => Some(('x', 'X')),
+            SVKey::C => Some(('c', 'C')),
+            SVKey::V => Some(('v', 'V')),
+            SVKey::B => Some(('b', 'B')),
+            SVKey::N => Some(('n', 'N')),
+            SVKey::M => Some(('m', 'M')),
+
+            SVKey::Comma => Some((',', '<')),
+            SVKey::Period => Some(('.', '>')),
+            SVKey::Slash => Some(('/', '?')),
+
+            SVKey::Space => Some((' ', ' ')),
+        };
+
+        ch.map(|tuple| if shifted { tuple.1 } else { tuple.0 })
+    }
 }

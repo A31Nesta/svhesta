@@ -72,14 +72,15 @@ async fn main(spawner: Spawner) -> ! {
 
     spawner.spawn(tasks::input_g0(cardputer.g0)).ok();
     spawner.spawn(tasks::output_display(cardputer.display)).ok();
-
-    // Keyboard
     spawner
         .spawn(tasks::input_keyboard(
             cardputer.keyboard,
             cardputer.keyboard_interrupt,
         ))
         .ok();
+
+    // Controller
+    spawner.spawn(tasks::controller_main()).ok();
 
     // Yield (run other tasks)
     core::future::pending::<()>().await;
