@@ -4,8 +4,12 @@ use esp_hal::{
 };
 
 mod display;
+pub mod keyboard;
 
-use crate::cardputer::display::{DisplayPeripherals, get_display};
+use crate::cardputer::{
+    display::{DisplayPeripherals, get_display},
+    keyboard::{AdvKeyboard, AdvKeyboardPeripherals},
+};
 pub use display::{DISPLAY_SIZE_HEIGHT, DISPLAY_SIZE_WIDTH, SVDisplay};
 
 /// The Cardputer's features in one package, similar to M5Unified
@@ -13,10 +17,12 @@ pub struct Cardputer {
     pub display: SVDisplay,
     pub backlight: Output<'static>,
     pub g0: Input<'static>,
+    pub keyboard: AdvKeyboard,
+    pub keyboard_interrupt: Input<'static>,
 }
 
 impl Cardputer {
-    pub fn new(peripherals: Peripherals) -> Self {
+    pub async fn new(peripherals: Peripherals) -> Self {
         // Initialize Display
         let display_peripherals = DisplayPeripherals {
             spi: peripherals.SPI2,
@@ -37,11 +43,25 @@ impl Cardputer {
             InputConfig::default().with_pull(Pull::Up),
         );
 
+        // Initialize Keyboard
+        let keyboard = AdvKeyboard::new(AdvKeyboardPeripherals {
+            i2c: peripherals.I2C0,
+            scl: peripherals.GPIO9,
+            sda: peripherals.GPIO8,
+        })
+        .await;
+        let keyboard_interrupt = Input::new(
+            peripherals.GPIO11,
+            InputConfig::default().with_pull(Pull::Up),
+        );
+
         // Build and return
         return Cardputer {
             display,
             backlight,
             g0,
+            keyboard,
+            keyboard_interrupt,
         };
     }
 }

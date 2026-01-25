@@ -13,6 +13,7 @@ static EVENT_BUS: Channel<CriticalSectionRawMutex, SVEvent, 16> = Channel::new()
 /// manually
 pub static TERMINAL: Mutex<CriticalSectionRawMutex, Option<Terminal>> = Mutex::new(None);
 
+#[derive(Debug, Clone, Copy)]
 pub enum SVEvent {
     KeyUp(SVKey),
     KeyDown(SVKey),

@@ -14,9 +14,9 @@ use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::RgbColor;
 use esp_hal::clock::CpuClock;
 use esp_hal::timer::timg::TimerGroup;
-use svhesta::cardputer::Cardputer;
 use svhesta::event::TERMINAL;
 use svhesta::terminal::Terminal;
+use svhesta::{cardputer::Cardputer, tasks};
 use {esp_backtrace as _, esp_println as _};
 
 extern crate alloc;
@@ -45,7 +45,7 @@ async fn main(spawner: Spawner) -> ! {
     info!("Embassy initialized!");
 
     // Init cardputer
-    let mut cardputer = Cardputer::new(peripherals);
+    let mut cardputer = Cardputer::new(peripherals).await;
     info!("Cardputer initialized!");
 
     cardputer.display.clear(Rgb565::BLACK).unwrap();
@@ -70,9 +70,15 @@ async fn main(spawner: Spawner) -> ! {
         );
     }
 
-    spawner.spawn(svhesta::tasks::input_g0(cardputer.g0)).ok();
+    spawner.spawn(tasks::input_g0(cardputer.g0)).ok();
+    spawner.spawn(tasks::output_display(cardputer.display)).ok();
+
+    // Keyboard
     spawner
-        .spawn(svhesta::tasks::output_display(cardputer.display))
+        .spawn(tasks::input_keyboard(
+            cardputer.keyboard,
+            cardputer.keyboard_interrupt,
+        ))
         .ok();
 
     // Yield (run other tasks)

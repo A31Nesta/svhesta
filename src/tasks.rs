@@ -3,7 +3,7 @@ use esp_backtrace as _;
 use esp_hal::gpio::Input;
 
 use crate::{
-    cardputer::SVDisplay,
+    cardputer::{SVDisplay, keyboard::AdvKeyboard},
     event::{SVEvent, TERMINAL, event_receive, event_send, keys::SVKey, log},
 };
 
@@ -16,6 +16,19 @@ pub async fn input_g0(mut g0: Input<'static>) {
 
         g0.wait_for_rising_edge().await;
         event_send(SVEvent::KeyUp(SVKey::G0)).await;
+    }
+}
+
+/// Keyboard Task
+#[embassy_executor::task]
+pub async fn input_keyboard(mut keyboard: AdvKeyboard, mut keyboard_interrupt: Input<'static>) {
+    log("Keyboard task running").await;
+    // Update once to flush fifo
+    keyboard.update().await;
+
+    loop {
+        keyboard_interrupt.wait_for_low().await;
+        keyboard.update().await;
     }
 }
 
