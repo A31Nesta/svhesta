@@ -1,49 +1,71 @@
 # Svhesta
 
-A lightweight collection of utilities for Cardputer users who are not
-interested in hacking. Svhesta aims to make the Cardputer into a
+A lightweight collection of utilities for Cardputer ADV users who are not
+interested in hacking. Svhesta aims to make the Cardputer ADV into a
 useful tool for end-users.
 
-## IR Universal Remote
+> [!WARNING]  
+> This firmware is currently a WORK IN PROGRESS.  
+> Since I'm using Rust, I can't use M5Unified like you would with C++
+> and Arduino or PlatformIO (or ESP-IDF); I have to make or configure
+> drivers for every peripheral (like the Display or Keyboard).
+> 
+> Since I don't have a Cardputer (original or 1.1), **the keyboard** driver
+> in this firmware **only works on the Cardputer ADV**.
 
-Since one of the most useful features of the Cardputer is the Infrared
-Emitter, a good Universal Remote firmware is a must-have.
+## The goal of Svhesta
 
-That's exactly what
-[Ultimate Remote by geo-tp](https://github.com/geo-tp/Ultimate-Remote)
-is, however, since the remotes in that firmware are bundled with the
-application itself, making installation times (via
-[Launcher](https://github.com/bmorcelli/Launcher)) slow. Ultimate Remote
-also comes with support for Flipper Zero `.ir` files, however this
-forces you to navigate your SD card to find the desired file.
-
-### The focus of Svhesta Remote
-
-The aim of this firmware is **to be as comfortable as a real remote**.
+The aim of this firmware is **to be as comfortable as possible**.
 This is why I focus on these points:
 
 - **Small size**: Fast installation via Firmware
-- **Agilily**: More shortcuts, built-in search feature
+- **Agilily**: Shortcuts, simple UI and search features
 
-The infrared database used in this firmware is an actual relational
-database. The SQLite database can be downloaded or built using 
-[OMNITOOL-IRDB](https://github.com/A31Nesta/omnitool-irdb) on the
-IRDB. This allows for proper user-friendly search.
+## Svhesta Remote
+
+The main feature of Svhesta. It's like
+[Ultimate Remote by geo-tp](https://github.com/geo-tp/Ultimate-Remote)
+but with a relational database on the SD card instead of a bundled
+infrared database.
+
+The SQLite database can be downloaded or built using
+[IRDB2SQL](https://github.com/A31Nesta/irdb2sql) on the
+Flipper Zero IRDB.
 
 > [!NOTE]  
-> OMNITOOL-IRDB does generate the database properly and in a reliable
-> and fully automatic way, but it's still not a proper program.
+> IRDB2SQL is currently private. In the releases of the repository
+> I'll put prebuilt SQLite DBs for Svhesta.
 >
-> I still have to update the program to allow anyone to use it as a
-> proper CLI application.
+> The repository will become public once Svhesta Remote functionality
+> is fully planned and once SD Card drivers are implemented.
 
-### Downsides of Svhesta Remote
+## Notes and the technical side
 
-Let's address the elephant in the room:
+As you already know from the little "Languages" bar on the side, this
+firmware is made with Rust instead of C++. To work with the ESP32 i'm
+using `esp-hal` instead of `esp-idf-hal`, meaning that this project uses
+`no_std` Rust.
 
-- **An SD Card is required** to use Svhesta Remote. In that SD Card you
-  also need to place a copy of the SQLite database.
+There are 2 Cardputer crates that already configure drivers for some
+peripherals but they're both for `esp-idf-hal` and `std`, so I used
+them as reference and made my own `esp-hal` implementation. You
+can check them out in the `cardputer` module of this project.
 
+For now I'm mostly just implementing drivers for the peripherals I need.
+This is the roadmap for implementations and drivers:
+
+- [x] **G0**: First test with input in Embassy
+- [x] **Display**
+- [x] **Cardputer ADV Keyboard**
+    - [ ] **Cardputer** (not ADV) **Keyboard**: Can't test
+- [ ] **SD Card**: Works with SPI like the display, investigate how SDs work in embedded
+- [ ] **IR Emitter**: Just a GPIO Output... right??? (yes but complicated)
+
+This means that I probably won't be implementing (for now at least):
+
+- Audio In/Out
+- Expansions like LoRa Cap
+- Gyro
 
 ---
 

@@ -12,7 +12,7 @@ use crate::{
 
 #[embassy_executor::task]
 pub async fn input_g0(mut g0: Input<'static>) {
-    log("Input task running").await;
+    // log("Input task running").await;
     loop {
         g0.wait_for_falling_edge().await;
         event_send(SVEvent::G0Down).await;
@@ -25,7 +25,7 @@ pub async fn input_g0(mut g0: Input<'static>) {
 /// Keyboard Task
 #[embassy_executor::task]
 pub async fn input_keyboard(mut keyboard: AdvKeyboard, mut keyboard_interrupt: Input<'static>) {
-    log("Keyboard task running").await;
+    // log("Keyboard task running").await;
     // Update once to flush fifo
     keyboard.update().await;
 
@@ -37,7 +37,8 @@ pub async fn input_keyboard(mut keyboard: AdvKeyboard, mut keyboard_interrupt: I
 
 #[embassy_executor::task]
 pub async fn output_display(mut display: SVDisplay) {
-    log("Display task running").await;
+    // log("Display task running").await;
+    draw_terminal(&mut display).await;
 
     loop {
         match view_event_receive().await {
@@ -50,7 +51,7 @@ pub async fn output_display(mut display: SVDisplay) {
 
 #[embassy_executor::task]
 pub async fn controller_main() {
-    log("Main Controller task running").await;
+    // log("Main Controller task running").await;
 
     let mut is_shift = false;
     let mut message = String::new();
