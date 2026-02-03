@@ -6,8 +6,11 @@ mod view;
 
 use crate::{
     cardputer::{SVDisplay, keyboard::AdvKeyboard},
-    event::{SVEvent, SViewEvent, event_receive, event_send, keys::SVKey, log, view_event_receive},
-    tasks::view::draw_terminal,
+    event::{
+        SVEvent, SViewEvent, event_receive, event_send, keys::SVKey, log, view_event_receive,
+        view_event_send,
+    },
+    tasks::view::{draw_terminal, draw_tiny_widgets_demo},
 };
 
 #[embassy_executor::task]
@@ -45,6 +48,9 @@ pub async fn output_display(mut display: SVDisplay) {
             SViewEvent::RedrawTerminal => {
                 draw_terminal(&mut display).await;
             }
+            SViewEvent::DrawView => {
+                draw_tiny_widgets_demo(&mut display).await;
+            }
         }
     }
 }
@@ -76,6 +82,10 @@ pub async fn controller_main() {
                 SVKey::Shift => is_shift = false,
                 _ => (),
             },
+            SVEvent::G0Down => {
+                // Test display
+                view_event_send(SViewEvent::DrawView).await;
+            }
             _ => (),
         };
     }
