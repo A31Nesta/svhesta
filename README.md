@@ -65,7 +65,26 @@ This means that I probably won't be implementing (for now at least):
 
 - Audio In/Out
 - Expansions like LoRa Cap
-- Gyro
+- Gyro <!-- mancy :o (sorry I'm playing Silent Hill 1) -->
+
+## NixOS Users
+
+This project is being developed in NixOS, meaning that I have to use the
+Rust Fork by Espressif to run this project in NixOS somehow. Well, this
+magician, [ede1998](https://github.com/ede1998) created
+[this `shell.nix`](https://github.com/oxalica/rust-overlay/issues/89#issuecomment-2535801379)
+for [his project](https://github.com/ede1998/ireplay).
+
+Since I prefer to use flakes and `nix develop` (I actually use `direnv`)
+I updated ede1998's Shell and transformed it into a flake. I haven't tested
+the `shell.nix` but it's updated (like the Flake) and should also work.
+
+You should be able to run the program on the Cardputer with just:
+
+```bash
+nix develop # If you don't use direnv
+cargo run
+```
 
 ---
 
