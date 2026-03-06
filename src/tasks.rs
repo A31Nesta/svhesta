@@ -1,6 +1,6 @@
 use alloc::string::String;
 use esp_backtrace as _;
-use esp_hal::gpio::Input;
+use esp_hal::gpio::{Input, Output};
 
 mod view;
 
@@ -10,7 +10,8 @@ use crate::{
         SVEvent, SViewEvent, event_receive, event_send, keys::SVKey, log, view_event_receive,
         view_event_send,
     },
-    tasks::view::{draw_terminal, draw_tiny_widgets_demo},
+    tasks::view::draw_terminal,
+    view::View,
 };
 
 #[embassy_executor::task]
@@ -39,9 +40,12 @@ pub async fn input_keyboard(mut keyboard: AdvKeyboard, mut keyboard_interrupt: I
 }
 
 #[embassy_executor::task]
-pub async fn output_display(mut display: SVDisplay) {
+pub async fn output_display(mut display: SVDisplay, mut backlight: Output<'static>) {
     // log("Display task running").await;
-    draw_terminal(&mut display).await;
+    // draw_terminal(&mut display).await;
+
+    let view = View::new();
+    view.draw(&mut display);
 
     loop {
         match view_event_receive().await {
@@ -49,7 +53,10 @@ pub async fn output_display(mut display: SVDisplay) {
                 draw_terminal(&mut display).await;
             }
             SViewEvent::DrawView => {
-                draw_tiny_widgets_demo(&mut display).await;
+                view.draw(&mut display);
+            }
+            SViewEvent::ToggleBacklight => {
+                backlight.toggle();
             }
         }
     }
@@ -84,7 +91,7 @@ pub async fn controller_main() {
             },
             SVEvent::G0Down => {
                 // Test display
-                view_event_send(SViewEvent::DrawView).await;
+                view_event_send(SViewEvent::ToggleBacklight).await;
             }
             _ => (),
         };

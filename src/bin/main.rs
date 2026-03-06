@@ -71,7 +71,12 @@ async fn main(spawner: Spawner) -> ! {
     }
 
     spawner.spawn(tasks::input_g0(cardputer.g0)).ok();
-    spawner.spawn(tasks::output_display(cardputer.display)).ok();
+    spawner
+        .spawn(tasks::output_display(
+            cardputer.display,
+            cardputer.backlight,
+        ))
+        .ok();
     spawner
         .spawn(tasks::input_keyboard(
             cardputer.keyboard,

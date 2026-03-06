@@ -26,6 +26,7 @@ pub enum SVEvent {
 pub enum SViewEvent {
     RedrawTerminal,
     DrawView,
+    ToggleBacklight,
 }
 
 /// Logs a message to the terminal and sends a Redraw event
